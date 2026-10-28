@@ -1,96 +1,54 @@
-# Memoteca 📝
- 
-![Status](https://img.shields.io/badge/status-completed-green?style=for-the-badge)
-![JavaScript](https://img.shields.io/badge/HTML5%20%2B%20CSS3%20%2B%20JavaScript-Frontend-yellow?style=for-the-badge)
- 
-A memory and thoughts collector built with vanilla JavaScript and Axios — full CRUD operations backed by a JSON Server REST API, with search, favorites, and date management.
- 
----
- 
-## Live Application
- 
-[Memoteca Demonstration](https://memoteca-rust.vercel.app)
- 
----
- 
-## Overview
- 
-Memoteca lets users store, organize, and revisit their thoughts and memories. What makes it more than a simple list app is the architecture — all data operations go through a real REST API (JSON Server), consumed asynchronously with Axios. The `api.js` module handles every endpoint, and `ui.js` takes care of rendering and DOM interaction. Clean separation of concerns without any framework.
- 
----
- 
-## Features
- 
-- **Create Memories** — add a thought with content, author, and date
-- **Edit Memories** — update existing entries through a pre-filled form
-- **Favorite** — toggle memories as favorites with a PATCH request
-- **Delete** — remove memories with a DELETE request
-- **Search** — filter memories by content or author in real time
-- **Persistent Storage** — all data lives in JSON Server, survives page reloads
-- **Responsive Design** — works across different screen sizes
----
- 
-## Architecture
- 
-```
-memoteca/
-├── index.html              # Main page — memory list and form
-├── css/
-│   └── styles.css          # All styles
-├── js/
-│   ├── api.js              # All API calls — GET, POST, PUT, PATCH, DELETE via Axios
-│   ├── ui.js               # DOM manipulation — renders memories, fills form, handles events
-│   └── main.js             # Entry point — wires api and ui together
-├── assets/
-│   └── imagens/            # Icons and images
-└── backend/
-    ├── db.json             # JSON Server database
-    └── package.json        # JSON Server setup
-```
- 
-### Key Concepts Applied
- 
-| Concept | How it shows up |
-|---|---|
-| **Axios** | All HTTP requests use Axios instead of native fetch — GET, POST, PUT, PATCH, DELETE |
-| **async/await** | Every API call is async with try/catch error handling |
-| **ES Modules** | `api.js` uses `export default`; `ui.js` imports it with `import` |
-| **REST API** | JSON Server exposes `/pensamentos` as a full REST endpoint |
-| **Date handling** | Dates are converted between ISO string (API) and Date objects (UI) |
-| **Separation of concerns** | `api.js` never touches the DOM; `ui.js` never makes HTTP calls directly |
- 
----
- 
-## How to Run
- 
-**Prerequisites:** Node.js installed
- 
+# Memoteca
+
+A notebook for short thoughts and quotes, built with vanilla JavaScript. You can add, edit, delete and favorite entries, and search them by text or author. The data lives in a REST API served by json-server, and Axios makes the requests.
+
+## What's inside
+
+- **Full CRUD over HTTP.** `js/api.js` is the only file that talks to the server: `GET`, `POST`, `PUT`, `PATCH` (favorite toggle) and `DELETE` on `/pensamentos`, all through Axios with `async/await`.
+- **Separated layers.** `api.js` never touches the DOM, `ui.js` renders and fills the form, and `main.js` wires the two together with event listeners.
+- **Validation before saving.** The content needs at least 10 characters and the author name 3 to 15 letters, both checked with regular expressions. Duplicates (same text and author) are caught with a `Set` of keys, and future dates are checked too.
+- **Search.** Filters entries by content or author as you type.
+- **Dates.** Stored as ISO strings in the API and converted to `Date` objects for display.
+- **ES modules.** The scripts are loaded as modules, and Axios comes from a CDN.
+
+The interface is in Portuguese.
+
+## Run it locally
+
+Needs Node.js (for the API) and any static file server (ES modules do not load from `file://`).
+
 ```bash
-# Clone the repository
 git clone https://github.com/victorhubarb/memoteca.git
 cd memoteca
- 
-# Start JSON Server (separate terminal)
+
+# terminal 1: the API on http://localhost:3000/pensamentos
 cd backend
-npm install
-npm start
- 
-# Open index.html in your browser (use Live Server or similar)
+npx json-server --watch db.json --port 3000
+
+# terminal 2: the page, then open http://localhost:8080
+cd ..
+npx http-server -p 8080
 ```
- 
-The API runs at `http://localhost:3000/pensamentos`.
- 
+
+## Project structure
+
+```
+index.html
+js/        api.js, ui.js, main.js
+css/       styles.css
+assets/    Icons and images
+backend/   db.json (seed data) and package.json
+```
+
+## Known gaps
+
+- The API address is hardcoded as `http://localhost:3000`, which is why there is no live demo link: a deployed page would have no server to talk to.
+- `backend/package.json` does not list `json-server` as a dependency, so `npm start` only works if it is installed globally. The `npx` command above avoids that.
+- The error handlers in `api.js` use `catch { ... throw error }` without naming the error, so a failed request raises a `ReferenceError` instead of rethrowing the original one.
+- The content regex accepts only letters and spaces, so it would reject some of the quotes in the seed data. When the date is in the future the form shows an alert but still saves, because the handler does not return.
+- The duplicate check is built once, when the page loads.
+- The layout has no media queries.
+
 ---
- 
-## Technologies
- 
-- **HTML5 / CSS3 / JavaScript**
-- **Axios** — HTTP client for REST API calls
-- **JSON Server** — local REST API from `db.json`
-- **ES Modules** — native JavaScript module system
----
- 
-## Author
- 
-**Victor Hugo Barbosa**
-[GitHub](https://github.com/victorhubarb) · [LinkedIn](https://www.linkedin.com/in/victorhbarbosa/)
+
+Victor Hugo Barbosa · [GitHub](https://github.com/victorhubarb) · [LinkedIn](https://www.linkedin.com/in/victorhbarbosa/)
